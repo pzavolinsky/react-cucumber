@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "jsx": "react",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noEmitOnError": true,
+    "alwaysStrict": true,
+    "declaration": true
+  },
+  "filesGlob": [
+    "./node_modules/@types/**/*.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx"
+  ],
+  "atom": {
+    "rewriteTsconfig": true
+  },
+  "files": [
+    "./node_modules/@types/cucumber/index.d.ts",
+    "./node_modules/@types/node/index.d.ts",
+    "./node_modules/@types/react/index.d.ts",
+    "./src/context.ts",
+    "./src/index.ts",
+    "./src/parser.ts",
+    "./src/react-unit.d.ts",
+    "./src/render.ts",
+    "./src/steps.ts",
+    "./src/examples/consistent-checkbox.tsx",
+    "./src/examples/example.tsx",
+    "./src/examples/person.tsx",
+    "./src/examples/pretty-label.tsx",
+    "./src/examples/upper-case-input.tsx"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "react-cucumber",
+  "version": "1.0.0",
+  "description": "React cucumber steps",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "node_modules/.bin/cucumberjs",
+    "dev": "node_modules/.bin/tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pzavolinsky/react-cucumber.git"
+  },
+  "keywords": [
+    "react-component",
+    "cucumber",
+    "gherkin",
+    "unit",
+    "test",
+    "react"
+  ],
+  "author": "Patricio Zavolinsky",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pzavolinsky/react-cucumber/issues"
+  },
+  "homepage": "https://github.com/pzavolinsky/react-cucumber",
+  "devDependencies": {
+    "@types/cucumber": "0.0.37",
+    "@types/node": "^7.0.5",
+    "@types/react": "^15.0.12",
+    "tslint": "^4.4.2",
+    "typescript": "^2.2.1"
+  },
+  "dependencies": {
+    "cucumber": "^2.0.0-rc.7",
+    "react": "^15.4.2",
+    "react-unit": "^2.0.1"
+  }
+}
