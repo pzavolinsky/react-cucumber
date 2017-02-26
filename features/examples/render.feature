@@ -44,6 +44,14 @@ Scenario: Pass non-string properties (i.e. JSON)
   When rendering <Person first={"Homer"} middle={1} last="Simpson" />
   Then the p.subtitle has text equal to "Homer 1"
 
+# Assume:
+#   const PersonSummary = ({ first, middle, last }) =>
+#     <li>{last}, {first} {middle}</li>;
+#
+#   const Persons = ({ persons }) =>
+#     <ul>
+#       {persons.map((p, i) => <PersonSummary key={i} {...p} />)}
+#     </ul>;
 Scenario: Complex JSON props, variables and multiple renders
   Given that $persons is
   """

@@ -45,12 +45,16 @@ const findTargetProp = (
   return value;
 };
 
+const rendered = (ctx:Context, render:Render) =>
+  (mode:string, type:string, attrs:string) => {
+    ctx.set('comp', render(mode, type, attrs));
+  };
+
 // --- Given ---------------------------------------------------------------- //
 
 export const givenRenderedComponent = ({ ctx, defs, render }:StepArgs) =>
-  defs.Given(/^a rendered <(\w+)(\s+.*)\/>$/, (type, attrs) => {
-    ctx.set('comp', render(type as string, attrs as string));
-  });
+  defs.Given(/^a (?:(shallow|full) )?rendered <(\w+)(\s+.*)\/>$/,
+    rendered(ctx, render));
 
 export const givenFunction = ({ ctx, defs }:StepArgs) =>
   defs.Given(/^a function (\$\w+)(?: that returns (.*))?$/,
@@ -69,9 +73,8 @@ export const givenVariable = ({ ctx, defs }:StepArgs) => {
 // --- When ----------------------------------------------------------------- //
 
 export const whenRenderingComponent = ({ ctx, defs, render }:StepArgs) =>
-  defs.When(/^rendering <(\w+)(\s+.*)\/>$/, (type, attrs) => {
-    ctx.set('comp', render(type as string, attrs as string));
-  });
+  defs.When(/^(?:(shallow|full) )?rendering <(\w+)(\s+.*)\/>$/,
+    rendered(ctx, render));
 
 export const whenTheSelectorCallsProp = ({ ctx, defs }:StepArgs) =>
   defs.When(/^(?:the (?:(\d+).. )?(.*) )?calls props\.(\w+)(?: with (.*))?$/,

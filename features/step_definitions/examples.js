@@ -5,16 +5,9 @@ const { UpperCaseInput } = require('../../dist/examples/upper-case-input');
 const { ConsistentCheckbox } =
   require('../../dist/examples/consistent-checkbox');
 
-const { ChangingInput, FancyInput, FancyLabel, UppercaseInput }
-  = require('../../dist/examples/example');
-
 register([
-  { type: FancyInput, name: 'FancyInput' },
-  ChangingInput,
-  FancyLabel,
-  UppercaseInput,
   Person,
-  Persons,
+  { type: Persons, name: 'Persons' },
   PrettyLabel,
   UpperCaseInput,
   ConsistentCheckbox

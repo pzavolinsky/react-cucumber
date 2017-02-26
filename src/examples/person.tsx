@@ -17,7 +17,8 @@ export const Person = ({ first, middle, last }:PersonType) =>
 // adds the displayName).
 //
 // Note: there is an alternative registration format that does not require this
-// hack, check features/step_definitions/examples.js for an example.
+// hack, check features/step_definitions/examples.js for an example (using
+// Persons below).
 (Person as any).displayName = 'Person';
 
 const PersonSummary = ({ first, middle, last }:PersonType) =>
@@ -27,4 +28,3 @@ export const Persons = ({ persons }:{ persons: PersonType[] }) =>
   <ul>
     {persons.map((p, i) => <PersonSummary key={i} {...p} />)}
   </ul>;
-(Persons as any).displayName = 'Persons';

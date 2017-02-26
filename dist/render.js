@@ -50,7 +50,7 @@ exports.default = function (getVars, comps) {
         return (__assign({}, cs, (_a = {}, _a[spec.name] = spec, _a)));
         var _a;
     }, {});
-    return function (type, attrString) {
+    return function (mode, type, attrString) {
         var vars = getVars();
         var spec = specMap[type];
         assert_1.equal(!!spec, true, "Invalid type: " + type + ".\n\n       Maybe the component was not registered or is missing a displayName.\n\n       Sometimes you will need to explicitly add a displayName to your\n       components (e.g. high-order components). Alternatively you can specify\n       the component name in the registration function call in\n       features/step_definitions.\n\n       Known components are: " + Object.keys(specMap).join(', ') + "\n     ");
@@ -63,6 +63,11 @@ exports.default = function (getVars, comps) {
             return (__assign({}, p, (_a = {}, _a[a.name] = parseValue(vars, a.value, a.block), _a)));
             var _a;
         }, {});
-        return createComponent(react_1.createElement(spec.type, __assign({}, (spec.props || {}), props)));
+        var cc = !mode
+            ? createComponent
+            : mode == 'shallow'
+                ? createComponent.shallow
+                : createComponent.interleaved;
+        return cc(react_1.createElement(spec.type, __assign({}, (spec.props || {}), props)));
     };
 };

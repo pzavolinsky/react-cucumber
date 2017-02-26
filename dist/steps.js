@@ -30,12 +30,15 @@ var findTargetProp = function (ctx, selector, index, key) {
     assert_1.equal(!!value, true, "Cannot find " + key + " in " + selector + "'s props");
     return value;
 };
+var rendered = function (ctx, render) {
+    return function (mode, type, attrs) {
+        ctx.set('comp', render(mode, type, attrs));
+    };
+};
 // --- Given ---------------------------------------------------------------- //
 exports.givenRenderedComponent = function (_a) {
     var ctx = _a.ctx, defs = _a.defs, render = _a.render;
-    return defs.Given(/^a rendered <(\w+)(\s+.*)\/>$/, function (type, attrs) {
-        ctx.set('comp', render(type, attrs));
-    });
+    return defs.Given(/^a (?:(shallow|full) )?rendered <(\w+)(\s+.*)\/>$/, rendered(ctx, render));
 };
 exports.givenFunction = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
@@ -55,9 +58,7 @@ exports.givenVariable = function (_a) {
 // --- When ----------------------------------------------------------------- //
 exports.whenRenderingComponent = function (_a) {
     var ctx = _a.ctx, defs = _a.defs, render = _a.render;
-    return defs.When(/^rendering <(\w+)(\s+.*)\/>$/, function (type, attrs) {
-        ctx.set('comp', render(type, attrs));
-    });
+    return defs.When(/^(?:(shallow|full) )?rendering <(\w+)(\s+.*)\/>$/, rendered(ctx, render));
 };
 exports.whenTheSelectorCallsProp = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;

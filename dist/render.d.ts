@@ -6,7 +6,7 @@ export interface Vars {
     [name: string]: Var;
 }
 export interface Render {
-    (type: string, attrs: string): any;
+    (mode: string, type: string, attrs: string): any;
 }
 export declare const createFnVar: (retVal: any) => Var;
 export declare const createValueVar: (value: any) => Var;

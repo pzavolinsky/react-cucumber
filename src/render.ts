@@ -13,7 +13,7 @@ export interface Vars {
 }
 
 export interface Render {
-  (type:string, attrs:string):any
+  (mode:string, type:string, attrs:string):any
 }
 
 export const createFnVar = (retVal:any):Var => {
@@ -59,7 +59,7 @@ export default (getVars:() => Vars, comps:any[]):Render => {
     .map(getSpec)
     .reduce((cs, spec) => ({ ...cs, [spec.name]: spec }), {});
 
-  return (type, attrString) => {
+  return (mode, type, attrString) => {
     const vars = getVars();
 
     const spec = specMap[type];
@@ -84,7 +84,13 @@ export default (getVars:() => Vars, comps:any[]):Render => {
     const props = attrs.value.reduce((p, a) =>
       ({ ...p, [a.name]: parseValue(vars, a.value, a.block) }), {});
 
-    return createComponent(createElement(spec.type, {
+    const cc = !mode
+      ? createComponent
+      : mode == 'shallow'
+        ? (createComponent as any).shallow
+        : (createComponent as any).interleaved;
+
+    return cc(createElement(spec.type, {
       ...(spec.props || {}),
       ...props
     }));
