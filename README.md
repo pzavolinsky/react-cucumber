@@ -263,7 +263,7 @@ These steps render `MyComponent` passing the specified props. Note that the prop
 
 Note: when specifying JSON props, don't forget to quote the field names! (that is: do `{ "a": 1 }` instead of `{ a: 1 }`).
 
-They are essentially equivalent. You should use the `When` step when testing your component's `render()` and the `Given` when testing your component's response to events.
+The two steps above are essentially equivalent. You should use the `When` step when testing your component's `render()` and the `Given` when testing your component's response to events.
 
 ###### Given that $var is `json`
 
