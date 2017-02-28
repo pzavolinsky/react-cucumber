@@ -282,7 +282,7 @@ Defines `$var` as a variable that can be passed to the rendering steps above.
 
 `1st` can actually be any ordinal of the form `numbers + two-letter suffix` (e.g. `2nd`, `3rd`, etc.). When `1st` is omitted, the first element that matches `selector` is assumed
 
-`selector` is a CSS selector on the rendered pseudo-HTML. When both `selector` and `1st` are omitted, the element matched in the previous *Then* step is used (make sure that there *is* a la previously matched element).
+`selector` is a CSS selector on the rendered pseudo-HTML. When both `selector` and `1st` are omitted, the element matched in the previous *Then* step is used (make sure that there *is* a previously matched element).
 
 `json` is any JSON value, in particular quoted strings, numbers, booleans, objects or arrays.
 
