@@ -153,7 +153,7 @@ Scenario: shows the value in UPPERCASE
   Then the input has props.value equal to "SIMPSON"
 
 Scenario: changes typed values to UPPERCASE
-  Given a rendered <UpperCaseInput value="" onChange="$onChange" />
+  Given a rendered <UpperCaseInput value="" onChange={$onChange} />
   When the input changes to "Simpson"
   Then the component changed to "SIMPSON"
 ```
