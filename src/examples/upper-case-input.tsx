@@ -8,10 +8,13 @@ export interface PropTypes {
 export const UpperCaseInput = React.createClass({
   displayName: 'UpperCaseInput',
   render() {
-    return <input {...this.props} onChange={e => this.props.onChange({
-      target: {
-        value: e.target.value.toUpperCase()
-      }
-    })} />;
+    return <input {...this.props}
+      onChange={e => this.props.onChange({
+        target: {
+          value: e.target.value.toUpperCase()
+        }
+      })}
+      value={this.props.value.toUpperCase()}
+    />;
   }
 });

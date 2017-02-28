@@ -62,3 +62,27 @@ Scenario: Complex JSON props, variables and multiple renders
   When rendering <Persons persons={$persons} />
   Then the 1st li has text equal to "Simpson, Homer J"
   And the 2nd li has text equal to "Bouvier, Marge "
+
+
+# Assume:
+# class UpperCaseInput extends React.Component {
+#   displayName = 'UpperCaseInput';
+#   render() {
+#     return <input {...this.props}
+#       onChange={e => this.props.onChange({
+#         target: {
+#           value: e.target.value.toUpperCase()
+#         }
+#       })}
+#       value={this.props.toUpperCase()}
+#     />;
+#   }
+# }
+Scenario: UpperCaseInput shows the value in UPPERCASE
+  When rendering <UpperCaseInput value="Simpson" />
+  Then the input has props.value equal to "SIMPSON"
+
+Scenario: changes typed values to UPPERCASE
+  Given a rendered <UpperCaseInput value="" onChange="$onChange" />
+  When the input changes to "Simpson"
+  Then the component changed to "SIMPSON"
