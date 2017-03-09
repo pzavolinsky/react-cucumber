@@ -4,7 +4,7 @@ export interface PropTypes {
   children?: any
 }
 
-// Not really a good practice, but good enought to test that you can augment
+// Not really a good practice, but good enough to test that you can augment
 // the props of a child component.
 export const FancyBorder = ({ children }:PropTypes) =>
   <div className="fancy-border">

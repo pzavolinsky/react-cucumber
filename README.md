@@ -183,7 +183,7 @@ The **When the `selector` changes to `JSON value`** step will only work for elem
 
 In the same spirit, **Then the component changed to `JSON value`** will only work if *your* component has an `onChange` prop that takes an event in this format (e.g. `<UpperCaseInput />`).
 
-So what happens of our component has a different event handler callback, for example:
+So what happens if our component has a different event handler callback, for example:
 
 ```tsx
 import * as React from 'react';
