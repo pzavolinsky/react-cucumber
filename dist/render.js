@@ -53,7 +53,9 @@ exports.default = function (getVars, comps) {
     return function (mode, type, attrString) {
         var vars = getVars();
         var spec = specMap[type];
-        assert_1.equal(!!spec, true, "Invalid type: " + type + ".\n\n       Maybe the component was not registered or is missing a displayName.\n\n       Sometimes you will need to explicitly add a displayName to your\n       components (e.g. high-order components). Alternatively you can specify\n       the component name in the registration function call in\n       features/step_definitions.\n\n       Known components are: " + Object.keys(specMap).join(', ') + "\n     ");
+        // tslint:disable
+        assert_1.equal(!!spec, true, "Invalid type: " + type + ".\n\n      Maybe the component was not registered or is missing a displayName.\n\n      Sometimes you will need to explicitly add a displayName to your\n      components (e.g. high-order components). Alternatively you can specify\n      the component name in the registration function call in\n      features/step_definitions.\n\n      For more info see:\n        https://github.com/pzavolinsky/react-cucumber/blob/master/features/step_definitions/react.js\n\n      Known components are:\n        " + Object.keys(specMap).join(', ') + "\n    \n    ");
+        // tslint:enable
         var attrs = parser_1.either(parser_1.parseAttrs(attrString));
         if (typeof attrs === 'string') {
             assert_1.equal(false, true, attrs); // invalid string

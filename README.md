@@ -253,6 +253,22 @@ This concludes this crash course into `react-cucumber`. The steps we used here a
 Step reference
 --------------
 
+This section lists the steps currently available in `react-cucumber`.
+
+Note that some steps can take rather long arguments (e.g. JSON values). In most of these steps, you have the option of moving the last argument to the next line by using the `"""` syntax as in:
+
+```gherkin
+Scenario: really long argument (both notations below are equivalent)
+  ...
+  Then the MyComponent has props.value equal to { "key": "value" }
+  Then the MyComponent has props.value equal to
+  """
+  {
+    "key": "value"
+  }
+  """
+```
+
 #### Rendering components
 
 ###### Given a rendered `<MyComponent prop1="val1" prop2={json2} props3={$func3} prop4={$var4} />`
@@ -305,8 +321,10 @@ Defines `$func` as a function that can be passed to rendering steps. Whenever ca
 #### Passing functions called from the event handlers
 
 ###### When the `1st` `selector` calls props.`name` with `json`
+###### When the `1st` `selector` calls props.`name` with event `json`
 ###### When the `1st` `selector` calls props.`name`
 ###### When the `selector` calls props.`name` with `json`
+###### When the `selector` calls props.`name` with event `json`
 ###### When the `selector` calls props.`name`
 
 Finds the component identified by `selector` and then calls `props.name(json)`.
@@ -318,6 +336,8 @@ Finds the component identified by `selector` and then calls `props.name(json)`.
 `name` is the name of any prop in matched element that is a function.
 
 `json` is any JSON value. If you want to pass multiple values use a JSON array. If you want to pass a single value that is a JSON array, pass instead an array with the value. For example to call `props.func([1,2,3])` pass `[[1,2,3]]`.
+
+The `with event` variants merge no-op `preventDefault` and `stopPropagation` functions into `json` allowing you to test event handlers that call these functions.
 
 ----
 

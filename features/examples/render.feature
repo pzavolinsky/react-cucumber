@@ -86,3 +86,12 @@ Scenario: changes typed values to UPPERCASE
   Given a rendered <UpperCaseInput value="" onChange="$onChange" />
   When the input changes to "Simpson"
   Then the component changed to "SIMPSON"
+
+Scenario: you can move the React component to the next line
+  When rendering
+  """
+  <UpperCaseInput
+    value="Simpson"
+  />
+  """
+  Then the input has props.value equal to "SIMPSON"

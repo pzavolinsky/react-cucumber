@@ -1,4 +1,12 @@
 "use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var assert_1 = require("assert");
 var context_1 = require("./context");
@@ -20,7 +28,9 @@ var findTarget = function (ctx, selector, index) {
     var idx = index
         ? parseInt(index) - 1
         : 0;
-    var target = ctx.get('comp').findByQuery(selector)[idx];
+    var comp = ctx.get('comp');
+    var target = comp.findByQuery(selector)[idx];
+    assert_1.equal(!!target, true, "Cannot find '" + selector + "'.\n\n    Here is a dump of the rendered component that should help you\n    troubleshoot this error: \n\n" + comp.dump() + "\n\n  ");
     ctx.set('lastTarget', target);
     return target;
 };
@@ -35,17 +45,41 @@ var rendered = function (ctx, render) {
         ctx.set('comp', render(mode, type, attrs));
     };
 };
+var renderedText = function (ctx, render) {
+    return function (mode, comp) {
+        var re = /[\r\n]+/g;
+        var matches = comp
+            .replace(re, '')
+            .trim()
+            .match(/<(\w+)(\s+.*)\/>/);
+        if (matches) {
+            var type = matches[1], attrs = matches[2];
+            ctx.set('comp', render(mode, type, attrs));
+        }
+        else {
+            assert_1.equal(false, true, "The following does not look like a component spec:\n\n        " + comp + "\n\n      The expected component pattern is:\n\n        " + re + "\n\n      ");
+        }
+    };
+};
+var noOp = function () { ; };
+var event = {
+    preventDefault: noOp,
+    stopPropagation: noOp
+};
 // --- Given ---------------------------------------------------------------- //
 exports.givenRenderedComponent = function (_a) {
     var ctx = _a.ctx, defs = _a.defs, render = _a.render;
-    return defs.Given(/^a (?:(shallow|full) )?rendered <(\w+)(\s+.*)\/>$/, rendered(ctx, render));
+    defs.Given(/^a (?:(shallow|full) )?rendered <(\w+)(\s+.*)\/>$/, rendered(ctx, render));
+    defs.Given(/^a (?:(shallow|full) )?rendered$/, renderedText(ctx, render));
 };
 exports.givenFunction = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
-    return defs.Given(/^a function (\$\w+)(?: that returns (.*))?$/, function (name, returns) {
+    var fn = function (name, returns) {
         var retVal = returns ? JSON.parse(returns) : undefined;
         setVar(ctx, name, render_1.createFnVar(retVal));
-    });
+    };
+    defs.Given(/^a function (\$\w+)(?: that returns (.*))?$/, fn);
+    defs.Given(/^a function (\$\w+) that returns$/, fn);
 };
 exports.givenVariable = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
@@ -58,26 +92,33 @@ exports.givenVariable = function (_a) {
 // --- When ----------------------------------------------------------------- //
 exports.whenRenderingComponent = function (_a) {
     var ctx = _a.ctx, defs = _a.defs, render = _a.render;
-    return defs.When(/^(?:(shallow|full) )?rendering <(\w+)(\s+.*)\/>$/, rendered(ctx, render));
+    defs.When(/^(?:(shallow|full) )?rendering <(\w+)(\s+.*)\/>$/, rendered(ctx, render));
+    defs.When(/^(?:(shallow|full) )?rendering$/, renderedText(ctx, render));
 };
 exports.whenTheSelectorCallsProp = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
-    return defs.When(/^(?:the (?:(\d+).. )?(.*) )?calls props\.(\w+)(?: with (.*))?$/, function (index, selector, key, args) {
+    var fn = function (index, selector, key, withEvent, arg) {
         var fn = findTargetProp(ctx, selector, index, key);
-        var fnArgs = !args
+        var fnArgs = !arg
             ? undefined
-            : args[0] == '['
-                ? JSON.parse(args)
-                : [JSON.parse(args)];
-        fn.apply(void 0, fnArgs);
-    });
+            : arg[0] == '['
+                ? JSON.parse(arg)
+                : [JSON.parse(arg)];
+        var args = withEvent
+            ? [__assign({}, event, fnArgs[0])].concat(fnArgs.slice(1)) : fnArgs;
+        fn.apply(void 0, args);
+    };
+    defs.When(/^(?:the (?:(\d+).. )?(.*) )?calls props\.(\w+)(?: with( event)? (.*))?$/, fn);
+    defs.When(/^(?:the (?:(\d+).. )?(.*) )?calls props\.(\w+) with( event)?$/, fn);
 };
 exports.whenTheSelectorChanges = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
-    return defs.When(/^(?:the (?:(\d+).. )?(.*) )?changes to (.*)$/, function (index, selector, value) {
+    var fn = function (index, selector, value) {
         var fn = findTargetProp(ctx, selector, index, 'onChange');
         fn({ target: { value: JSON.parse(value) } });
-    });
+    };
+    defs.When(/^(?:the (?:(\d+).. )?(.*) )?changes to (.*)$/, fn);
+    defs.When(/^(?:the (?:(\d+).. )?(.*) )?changes$/, fn);
 };
 // --- Then ----------------------------------------------------------------- //
 exports.thenDumpComponent = function (_a) {
@@ -92,13 +133,15 @@ exports.thenDumpContext = function (_a) {
 };
 exports.thenTheSelectorHasProp = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
-    return defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) equal to (.*)$/, function (index, selector, key, value) {
+    var fn = function (index, selector, key, value) {
         var target = findTarget(ctx, selector, index);
         var actual = key === 'text'
             ? target.text
             : target.props[key.replace(/^props\./, '')];
         assert_1.equal(JSON.stringify(actual), JSON.stringify(JSON.parse(value)));
-    });
+    };
+    defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) equal to (.*)$/, fn);
+    defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) equal to$/, fn);
 };
 exports.thenTheFunctionWasCalled = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
@@ -109,21 +152,25 @@ exports.thenTheFunctionWasCalled = function (_a) {
 };
 exports.thenTheComponentChanged = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
-    return defs.Then(/^the component changed to (.*)$/, function (value) {
+    var fn = function (value) {
         var index = 0;
         var fn = getVar(ctx, '$onChange');
         assert_1.equal(JSON.stringify(fn.calls[index][0].target.value), JSON.stringify(JSON.parse(value)));
-    });
+    };
+    defs.Then(/^the component changed to (.*)$/, fn);
+    defs.Then(/^the component changed to$/, fn);
 };
 exports.thenTheFunctionCallWas = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
-    return defs.Then(/^the (?:(\d+).. )?call to (\$\w+) had arguments (.*)$/, function (index, name, args) {
+    var fn = function (index, name, args) {
         var idx = index
             ? parseInt(index) - 1
             : 0;
         var fn = getVar(ctx, name);
         assert_1.equal(JSON.stringify(fn.calls[idx]), JSON.stringify(JSON.parse(args)));
-    });
+    };
+    defs.Then(/^the (?:(\d+).. )?call to (\$\w+) had arguments (.*)$/, fn);
+    defs.Then(/^the (?:(\d+).. )?call to (\$\w+) had arguments$/, fn);
 };
 // -------------------------------------------------------------------------- //
 exports.default = [

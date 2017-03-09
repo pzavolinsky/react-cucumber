@@ -63,17 +63,24 @@ export default (getVars:() => Vars, comps:any[]):Render => {
     const vars = getVars();
 
     const spec = specMap[type];
+    // tslint:disable
     equal(!!spec, true, `Invalid type: ${type}.
 
-       Maybe the component was not registered or is missing a displayName.
+      Maybe the component was not registered or is missing a displayName.
 
-       Sometimes you will need to explicitly add a displayName to your
-       components (e.g. high-order components). Alternatively you can specify
-       the component name in the registration function call in
-       features/step_definitions.
+      Sometimes you will need to explicitly add a displayName to your
+      components (e.g. high-order components). Alternatively you can specify
+      the component name in the registration function call in
+      features/step_definitions.
 
-       Known components are: ${Object.keys(specMap).join(', ')}
-     `);
+      For more info see:
+        https://github.com/pzavolinsky/react-cucumber/blob/master/features/step_definitions/react.js
+
+      Known components are:
+        ${Object.keys(specMap).join(', ')}
+    
+    `);
+    // tslint:enable
 
     const attrs = either(parseAttrs(attrString));
     if (typeof attrs === 'string') {
