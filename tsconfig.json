@@ -30,6 +30,7 @@
     "./src/steps.ts",
     "./src/examples/clicky.tsx",
     "./src/examples/consistent-checkbox.tsx",
+    "./src/examples/fancy-border.tsx",
     "./src/examples/person.tsx",
     "./src/examples/pretty-label.tsx",
     "./src/examples/upper-case-input.tsx"

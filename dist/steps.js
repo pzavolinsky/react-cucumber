@@ -11,9 +11,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var assert_1 = require("assert");
 var context_1 = require("./context");
 var render_1 = require("./render");
-exports.createArgs = function (defs, comps) {
+exports.createArgs = function (defs, comps, options) {
     var ctx = context_1.default(function () { return ({ vars: { $onChange: render_1.createFnVar(null) } }); });
-    var render = render_1.default(function () { return ctx.get('vars'); }, comps);
+    var render = render_1.default(function () { return ctx.get('vars'); }, comps, options.mapCreateComponent);
     return {
         ctx: ctx,
         defs: defs,
@@ -133,15 +133,27 @@ exports.thenDumpContext = function (_a) {
 };
 exports.thenTheSelectorHasProp = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
-    var fn = function (index, selector, key, value) {
+    var fn = function (index, selector, key, op, value) {
         var target = findTarget(ctx, selector, index);
         var actual = key === 'text'
             ? target.text
             : target.props[key.replace(/^props\./, '')];
-        assert_1.equal(JSON.stringify(actual), JSON.stringify(JSON.parse(value)));
+        if (op === 'equal to') {
+            assert_1.equal(JSON.stringify(actual), JSON.stringify(JSON.parse(value)));
+        }
+        else {
+            var actualText = JSON.stringify(actual);
+            assert_1.equal(!!actualText.match(new RegExp(value)), true, "The value for " + selector + "[" + index + "]." + key + " does not match:\n\n          " + value + "\n\n        The actual value is:\n\n          " + actualText + "\n        ");
+        }
     };
-    defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) equal to (.*)$/, fn);
-    defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) equal to$/, fn);
+    defs.Then(
+    // tslint:disable-next-line
+    /^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) (equal to|matching) (.*)$/, fn);
+    defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) (equal to|matching)$/, fn);
+};
+exports.thenThereAreSelectorElements = function (_a) {
+    var ctx = _a.ctx, defs = _a.defs;
+    return defs.Then(/^there (?:is|are) (.+) (.+) elements?$/, function (count, selector) { return assert_1.equal(ctx.get('comp').findByQuery(selector).length, parseInt(count), "Number of '" + selector + "' mismatch"); });
 };
 exports.thenTheFunctionWasCalled = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
@@ -159,6 +171,10 @@ exports.thenTheComponentChanged = function (_a) {
     };
     defs.Then(/^the component changed to (.*)$/, fn);
     defs.Then(/^the component changed to$/, fn);
+};
+exports.thenTheComponentDidNotChange = function (_a) {
+    var ctx = _a.ctx, defs = _a.defs;
+    return defs.Then(/^the component (?:did not|didn't) change$/, function () { return assert_1.equal(getVar(ctx, '$onChange').calls, 0, 'The component\'s onChange function was called at least once'); });
 };
 exports.thenTheFunctionCallWas = function (_a) {
     var ctx = _a.ctx, defs = _a.defs;
@@ -183,7 +199,9 @@ exports.default = [
     exports.thenDumpComponent,
     exports.thenDumpContext,
     exports.thenTheSelectorHasProp,
+    exports.thenThereAreSelectorElements,
     exports.thenTheFunctionWasCalled,
     exports.thenTheFunctionCallWas,
-    exports.thenTheComponentChanged
+    exports.thenTheComponentChanged,
+    exports.thenTheComponentDidNotChange
 ];

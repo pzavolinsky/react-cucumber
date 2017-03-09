@@ -29,47 +29,64 @@ exports.createValueVar = function (value) { return ({
 var parseValue = function (vars, value, block) {
     return value === null
         ? null
-        : value[0] == '$'
+        : value[0] === '$'
             ? vars[value].value
             : block
-                ? JSON.parse(value)
+                ? value === 'undefined'
+                    ? undefined
+                    : JSON.parse(value)
                 : value;
 };
 var getName = function (c) {
     return c.displayName || c.name || c.constructor && c.constructor.name;
 };
+var onChangeAttr = {
+    name: 'onChange',
+    value: '$onChange',
+    block: true
+};
 var getSpec = function (c) {
     return typeof c === 'function'
         ? { type: c, name: getName(c) }
-        : c;
+        : __assign({}, c, { name: c.name || getName(c.type) });
 };
-exports.default = function (getVars, comps) {
+exports.getComponentForType = function (comps) {
     var specMap = comps
         .map(getSpec)
         .reduce(function (cs, spec) {
         return (__assign({}, cs, (_a = {}, _a[spec.name] = spec, _a)));
         var _a;
     }, {});
-    return function (mode, type, attrString) {
-        var vars = getVars();
+    return function (type) {
         var spec = specMap[type];
         // tslint:disable
-        assert_1.equal(!!spec, true, "Invalid type: " + type + ".\n\n      Maybe the component was not registered or is missing a displayName.\n\n      Sometimes you will need to explicitly add a displayName to your\n      components (e.g. high-order components). Alternatively you can specify\n      the component name in the registration function call in\n      features/step_definitions.\n\n      For more info see:\n        https://github.com/pzavolinsky/react-cucumber/blob/master/features/step_definitions/react.js\n\n      Known components are:\n        " + Object.keys(specMap).join(', ') + "\n    \n    ");
+        assert_1.equal(!!spec, true, "Invalid type: " + type + ".\n\n      Maybe the component was not registered or is missing a displayName.\n\n      Sometimes you will need to explicitly add a displayName to your\n      components (e.g. high-order components). Alternatively you can specify\n      the component name in the registration function call in\n      features/step_definitions.\n\n      For more info see:\n        https://github.com/pzavolinsky/react-cucumber/blob/master/features/step_definitions/react.js\n\n      Known components are:\n        " + Object.keys(specMap).join(', ') + "\n\n    ");
         // tslint:enable
+        return spec;
+    };
+};
+exports.default = function (getVars, comps, mapCreateComponent) {
+    var getComponent = exports.getComponentForType(comps);
+    return function (mode, type, attrString) {
+        var vars = getVars();
+        var spec = getComponent(type);
         var attrs = parser_1.either(parser_1.parseAttrs(attrString));
         if (typeof attrs === 'string') {
             assert_1.equal(false, true, attrs); // invalid string
             return null;
         }
-        var props = attrs.value.reduce(function (p, a) {
+        var props = [onChangeAttr].concat(attrs.value).reduce(function (p, a) {
             return (__assign({}, p, (_a = {}, _a[a.name] = parseValue(vars, a.value, a.block), _a)));
             var _a;
         }, {});
+        var createComponentFn = mapCreateComponent
+            ? mapCreateComponent(createComponent)
+            : createComponent;
         var cc = !mode
-            ? createComponent
+            ? createComponentFn
             : mode == 'shallow'
-                ? createComponent.shallow
-                : createComponent.interleaved;
-        return cc(react_1.createElement(spec.type, __assign({}, (spec.props || {}), props)));
+                ? createComponentFn.shallow
+                : createComponentFn.interleaved;
+        return cc(react_1.createElement(spec.type, __assign({}, (spec.props || {}), props), react_1.createElement('first-child')));
     };
 };

@@ -33,6 +33,15 @@ Scenario: Use CSS selectors to find elements
   Then the p.title has text equal to "SIMPSON"
   And the .subtitle has text equal to "Homer J"
 
+Scenario: Assert using a regex
+  When rendering <Person first="Homer" middle="J" last="Simpson" />
+  Then the 2nd p has text matching Hom.*J
+
+Scenario: Assert number of elements
+  When rendering <Person first="Homer" middle="J" last="Simpson" />
+  Then there are 2 p elements
+  And there is 1 p.title element
+
 Scenario: Use shorthand to assert multiple things on the same element
   When rendering <Person first="Homer" middle="J" last="Simpson" />
   Then the 1st p has text equal to "SIMPSON"
@@ -62,7 +71,6 @@ Scenario: Complex JSON props, variables and multiple renders
   When rendering <Persons persons={$persons} />
   Then the 1st li has text equal to "Simpson, Homer J"
   And the 2nd li has text equal to "Bouvier, Marge "
-
 
 # Assume:
 # class UpperCaseInput extends React.Component {
@@ -95,3 +103,12 @@ Scenario: you can move the React component to the next line
   />
   """
   Then the input has props.value equal to "SIMPSON"
+
+# Assume:
+#   const FancyBorder = ({ children }:PropTypes) =>
+#     <div className="fancy-border">
+#       {React.cloneElement(children, { className: 'fancy-content' })}
+#     </div>;
+Scenario: the props that a component injects into its children
+  When rendering <FancyBorder />
+  Then the first-child has props.className equal to "fancy-content"

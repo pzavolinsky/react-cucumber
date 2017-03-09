@@ -290,19 +290,27 @@ Defines `$var` as a variable that can be passed to the rendering steps above.
 #### Asserting props and text
 
 ###### Then the `1st` `selector` has text equal to `json`
+###### Then the `1st` `selector` has text matching `regex`
 ###### Then the `1st` `selector` has props.`name` equal to `json`
+###### Then the `1st` `selector` has props.`name` matching `regex`
 ###### Then the `selector` has text equal to `json`
+###### Then the `selector` has text matching `regex`
 ###### Then the `selector` has props.`name` equal to `json`
+###### Then the `selector` has props.`name` matching `regex`
 ###### Then text equal to `json`
+###### Then text matching `regex`
 ###### Then props.`name` equal to `json`
+###### Then props.`name` matching `regex`
 
 `1st` can actually be any ordinal of the form `numbers + two-letter suffix` (e.g. `2nd`, `3rd`, etc.). When `1st` is omitted, the first element that matches `selector` is assumed
 
-`selector` is a CSS selector on the rendered pseudo-HTML. When both `selector` and `1st` are omitted, the element matched in the previous *Then* step is used (make sure that there *is* a previously matched element).
+`selector` is a CSS selector on the rendered pseudo-HTML. When both `selector` and `1st` are omitted, the element matched in the previous *Then* step is used (make sure that there *is* a previously matched element). Note that the special selector `first-child` can be used to test components that inject props into their children (as in `React.cloneElement(children, injectedProps)`). Scroll through [features/examples/render.feature](https://github.com/pzavolinsky/react-cucumber/blob/master/features/examples/render.feature) to see an example of this type of test.
 
 `json` is any JSON value, in particular quoted strings, numbers, booleans, objects or arrays.
 
 `name` is the name of any prop in matched element.
+
+`regex` is a regular expression (e.g. `AB*C-\d+`).
 
 ----
 

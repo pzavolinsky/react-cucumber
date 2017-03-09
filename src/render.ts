@@ -1,7 +1,7 @@
 import { equal } from 'assert';
 import createComponent = require('react-unit');
 import { createElement } from 'react';
-import { either, parseAttrs } from './parser';
+import { Attr, either, parseAttrs } from './parser';
 
 export interface Var {
   calls: any[][]
@@ -34,33 +34,39 @@ export const createValueVar = (value:any):Var => ({
 const parseValue = (vars:Vars, value:string|null, block:boolean) =>
   value === null
   ? null
-  : value[0] == '$'
+  : value[0] === '$'
     ? vars[value].value
     : block
-      ? JSON.parse(value)
+      ? value === 'undefined'
+        ? undefined
+        : JSON.parse(value)
       : value;
 
 const getName = (c:any):string =>
   c.displayName || c.name || c.constructor && c.constructor.name;
 
-interface Spec {
+export interface Spec {
   type: any
   name: string
   props?: { [name:string]:any }
 }
 
+const onChangeAttr:Attr = {
+  name: 'onChange',
+  value: '$onChange',
+  block: true
+};
+
 const getSpec = (c:any):Spec =>
   typeof c === 'function'
   ? { type: c, name: getName(c) }
-  : c;
+  : { ...c, name: c.name || getName(c.type) };
 
-export default (getVars:() => Vars, comps:any[]):Render => {
+export const getComponentForType = (comps:any[]) => {
   const specMap:{ [name:string]:Spec } = comps
-    .map(getSpec)
-    .reduce((cs, spec) => ({ ...cs, [spec.name]: spec }), {});
-
-  return (mode, type, attrString) => {
-    const vars = getVars();
+      .map(getSpec)
+      .reduce((cs, spec) => ({ ...cs, [spec.name]: spec }), {});
+  return (type:string) => {
 
     const spec = specMap[type];
     // tslint:disable
@@ -78,9 +84,28 @@ export default (getVars:() => Vars, comps:any[]):Render => {
 
       Known components are:
         ${Object.keys(specMap).join(', ')}
-    
+
     `);
     // tslint:enable
+    return spec;
+  };
+};
+
+export interface MapCreateComponent {
+  (createComponent:any):any
+}
+
+export default (
+  getVars:() => Vars,
+  comps:any[],
+  mapCreateComponent?:MapCreateComponent
+):Render => {
+  const getComponent = getComponentForType(comps);
+
+  return (mode, type, attrString) => {
+    const vars = getVars();
+
+    const spec = getComponent(type);
 
     const attrs = either(parseAttrs(attrString));
     if (typeof attrs === 'string') {
@@ -88,18 +113,23 @@ export default (getVars:() => Vars, comps:any[]):Render => {
       return null;
     }
 
-    const props = attrs.value.reduce((p, a) =>
+    const props = [onChangeAttr].concat(attrs.value).reduce((p, a) =>
       ({ ...p, [a.name]: parseValue(vars, a.value, a.block) }), {});
 
-    const cc = !mode
-      ? createComponent
-      : mode == 'shallow'
-        ? (createComponent as any).shallow
-        : (createComponent as any).interleaved;
+    const createComponentFn = mapCreateComponent
+      ? mapCreateComponent(createComponent)
+      : createComponent;
 
-    return cc(createElement(spec.type, {
-      ...(spec.props || {}),
-      ...props
-    }));
+    const cc = !mode
+      ? createComponentFn
+      : mode == 'shallow'
+        ? (createComponentFn as any).shallow
+        : (createComponentFn as any).interleaved;
+
+    return cc(createElement(
+      spec.type,
+      { ...(spec.props || {}), ...props },
+      createElement('first-child')
+    ));
   };
 };

@@ -1,8 +1,8 @@
 import { equal } from 'assert';
 import { StepDefinitions } from 'cucumber';
 import createContext, { Context } from './context';
-import renderComps, { createFnVar, createValueVar, Render, Var }
-  from './render';
+import renderComps, { createFnVar, createValueVar, MapCreateComponent, Render
+  , Var } from './render';
 
 export interface StepArgs {
   ctx: Context
@@ -10,9 +10,21 @@ export interface StepArgs {
   render: Render
 }
 
-export const createArgs = (defs:StepDefinitions, comps:any[]):StepArgs => {
+export interface Options {
+  mapCreateComponent?: MapCreateComponent
+}
+
+export const createArgs = (
+  defs:StepDefinitions,
+  comps:any[],
+  options:Options
+):StepArgs => {
   const ctx = createContext(() => ({ vars: { $onChange: createFnVar(null) } }));
-  const render = renderComps(() => ctx.get('vars'), comps);
+  const render = renderComps(
+    () => ctx.get('vars'),
+    comps,
+    options.mapCreateComponent
+  );
   return {
     ctx,
     defs,
@@ -169,17 +181,51 @@ export const thenDumpContext = ({ ctx, defs }:StepArgs) =>
   defs.Then(/^dump the test context$/, () => ctx.dump());
 
 export const thenTheSelectorHasProp = ({ ctx, defs }:StepArgs) => {
-  const fn = (index:string, selector:string, key:string, value:string) => {
+  const fn = (
+    index:string,
+    selector:string,
+    key:string,
+    op:string,
+    value:string
+  ) => {
     const target = findTarget(ctx, selector, index);
     const actual = key === 'text'
       ? target.text
       : target.props[key.replace(/^props\./, '')];
-    equal(JSON.stringify(actual), JSON.stringify(JSON.parse(value)));
+    if (op === 'equal to') {
+      equal(JSON.stringify(actual), JSON.stringify(JSON.parse(value)));
+    } else {
+      const actualText = JSON.stringify(actual);
+      equal(
+        !!actualText.match(new RegExp(value)),
+        true,
+        `The value for ${selector}[${index}].${key} does not match:
+
+          ${value}
+
+        The actual value is:
+
+          ${actualText}
+        `
+      );
+    }
   };
-  defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) equal to (.*)$/,
+  defs.Then(
+    // tslint:disable-next-line
+    /^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) (equal to|matching) (.*)$/,
     fn);
-  defs.Then(/^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) equal to$/, fn);
+  defs.Then(
+    /^(?:the (?:(\d+).. )?(.*) has )?(props\.\w+|text) (equal to|matching)$/,
+    fn);
 };
+
+export const thenThereAreSelectorElements = ({ ctx, defs }:StepArgs) =>
+  defs.Then(/^there (?:is|are) (.+) (.+) elements?$/,
+    (count:string, selector:string) => equal(
+      ctx.get('comp').findByQuery(selector).length,
+      parseInt(count),
+      `Number of '${selector}' mismatch`
+    ));
 
 export const thenTheFunctionWasCalled = ({ ctx, defs }:StepArgs) =>
   defs.Then(/^the function (\$\w+) was called (?:(\d+) times|once)?$/,
@@ -201,6 +247,13 @@ export const thenTheComponentChanged = ({ ctx, defs }:StepArgs) => {
   defs.Then(/^the component changed to (.*)$/, fn);
   defs.Then(/^the component changed to$/, fn);
 };
+
+export const thenTheComponentDidNotChange = ({ ctx, defs }:StepArgs) =>
+  defs.Then(/^the component (?:did not|didn't) change$/, () => equal(
+    getVar(ctx, '$onChange').calls,
+    0,
+    'The component\'s onChange function was called at least once'
+  ));
 
 export const thenTheFunctionCallWas = ({ ctx, defs }:StepArgs) => {
   const fn = (index:string, name:string, args:string) => {
@@ -226,7 +279,9 @@ export default [
   thenDumpComponent,
   thenDumpContext,
   thenTheSelectorHasProp,
+  thenThereAreSelectorElements,
   thenTheFunctionWasCalled,
   thenTheFunctionCallWas,
-  thenTheComponentChanged
+  thenTheComponentChanged,
+  thenTheComponentDidNotChange
 ];
