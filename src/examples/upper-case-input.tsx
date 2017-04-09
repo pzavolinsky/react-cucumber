@@ -5,8 +5,7 @@ export interface PropTypes {
   onChange: (e:{ target: { value: string } }) => void
 }
 
-export const UpperCaseInput = React.createClass({
-  displayName: 'UpperCaseInput',
+export class UpperCaseInput extends React.Component<PropTypes, void> {
   render() {
     return <input {...this.props}
       onChange={e => this.props.onChange({
@@ -17,4 +16,4 @@ export const UpperCaseInput = React.createClass({
       value={this.props.value.toUpperCase()}
     />;
   }
-});
+}

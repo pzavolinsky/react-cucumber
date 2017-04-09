@@ -1,6 +1,6 @@
 {
   "name": "react-cucumber",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "React cucumber steps",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "cucumber": "^2.0.0-rc.7",
-    "react": "^15.4.2",
-    "react-unit": "^2.0.1"
+    "react": "^15.5.3",
+    "react-unit": "^3.0.0"
   }
 }
