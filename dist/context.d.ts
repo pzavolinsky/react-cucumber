@@ -4,7 +4,7 @@ export interface Context {
     reset: () => void;
     dump: () => void;
 }
-declare var _default: (def: () => {
+declare const _default: (def: () => {
     [key: string]: any;
 }) => Context;
 export default _default;

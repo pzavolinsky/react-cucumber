@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = function (def) {
+exports.default = (function (def) {
     var state = def;
     return {
         get: function (k) { return state[k]; },
@@ -8,4 +8,4 @@ exports.default = function (def) {
         reset: function () { state = def(); },
         dump: function () { return console.log('\n\nContext\n---------\n\n', state); }
     };
-};
+});

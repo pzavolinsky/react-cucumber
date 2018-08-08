@@ -21,5 +21,5 @@ export declare const getComponentForType: (comps: any[]) => (type: string) => Sp
 export interface MapCreateComponent {
     (createComponent: any): any;
 }
-declare var _default: (getVars: () => Vars, comps: any[], mapCreateComponent?: MapCreateComponent | undefined) => Render;
+declare const _default: (getVars: () => Vars, comps: any[], mapCreateComponent?: MapCreateComponent | undefined) => Render;
 export default _default;
