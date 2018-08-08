@@ -1,11 +1,14 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var assert_1 = require("assert");
@@ -54,8 +57,8 @@ exports.getComponentForType = function (comps) {
     var specMap = comps
         .map(getSpec)
         .reduce(function (cs, spec) {
-        return (__assign({}, cs, (_a = {}, _a[spec.name] = spec, _a)));
         var _a;
+        return (__assign({}, cs, (_a = {}, _a[spec.name] = spec, _a)));
     }, {});
     return function (type) {
         var spec = specMap[type];
@@ -65,7 +68,7 @@ exports.getComponentForType = function (comps) {
         return spec;
     };
 };
-exports.default = function (getVars, comps, mapCreateComponent) {
+exports.default = (function (getVars, comps, mapCreateComponent) {
     var getComponent = exports.getComponentForType(comps);
     return function (mode, type, attrString) {
         var vars = getVars();
@@ -76,8 +79,8 @@ exports.default = function (getVars, comps, mapCreateComponent) {
             return null;
         }
         var props = [onChangeAttr].concat(attrs.value).reduce(function (p, a) {
-            return (__assign({}, p, (_a = {}, _a[a.name] = parseValue(vars, a.value, a.block), _a)));
             var _a;
+            return (__assign({}, p, (_a = {}, _a[a.name] = parseValue(vars, a.value, a.block), _a)));
         }, {});
         var createComponentFn = mapCreateComponent
             ? mapCreateComponent(createComponent)
@@ -89,4 +92,4 @@ exports.default = function (getVars, comps, mapCreateComponent) {
                 : createComponentFn.interleaved;
         return cc(react_1.createElement(spec.type, __assign({}, (spec.props || {}), props), react_1.createElement('first-child')));
     };
-};
+});

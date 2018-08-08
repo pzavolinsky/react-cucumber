@@ -49,7 +49,7 @@ exports.parseBlock = function (input) {
             return p
                 .then(function (v) { return exports.parseString(c, v).map(wrap(c, c)); })
                 .then(exports.parseBlock);
-        default:
+        default: // '{'
             return p
                 .then(function (v) { return exports.parseBlock(v).map(wrap('{', '}')); })
                 .then(exports.parseBlock);
