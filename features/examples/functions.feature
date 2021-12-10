@@ -2,7 +2,7 @@ Feature: Function prop examples
 # These examples show how to test function props (i.e. callbacks). There are two
 # types of tests related to functions:
 
-# 1) Functions called frmo the component's render (e.g. prettify)
+# 1) Functions called from the component's render (e.g. prettify)
 # ---------------------------------------------------------------
 # Assume:
 #   class PrettyLabel extends React.Component {
